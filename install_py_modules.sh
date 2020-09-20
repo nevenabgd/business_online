@@ -1,4 +1,3 @@
-sudo curl -O https://bootstrap.pypa.io/get-pip.py
-sudo python3 get-pip.py --user
-sudo pip install -U botocore boto3
-sudo pip install -U ujson warcio idna beautifulsoup4 lxml
+#!/bin/bash
+
+sudo python3 –m pip install botocore boto3 ujson warcio idna beautifulsoup4 lxml
