@@ -3,6 +3,8 @@ from collections import Counter
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 
+from pyspark.sql.types import StructType, StructField, StringType, LongType
+
 from sparkcc import CCIndexWarcSparkJob
 
 
@@ -20,7 +22,7 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
     
     def add_arguments(self, parser):
         super(CommonCrawlExtractor, self).add_arguments(parser)
-        agroup = parser.add_mutually_exclusive_group(required=True)
+        agroup = parser.add_mutually_exclusive_group(required=False)
         agroup.add_argument("--s3_output_path", default=None,
                             help="S3 output location")
 
@@ -52,6 +54,8 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
 
     def process_record(self, record):
         uri = record.rec_headers.get_header('uri')
+        if uri is None:
+            uri = record.rec_headers.get_header('WARC-Target-URI')
         page = record.content_stream().read()
         if not self.is_html(record):
             self.records_non_html.add(1)
