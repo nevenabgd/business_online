@@ -91,6 +91,10 @@ class CCSparkJob(object):
                                 help="Enable PySpark profiler and log"
                                 " profiling metrics if job has finished,"
                                 " cf. spark.python.profile")
+        arg_parser.add_argument("--fs_s3a_access_key", default=None,
+                                help="fs.s3a.access.key")
+        arg_parser.add_argument("--fs_s3a_secret_key", default=None,
+                                help="fs.s3a.access.key")
 
         self.add_arguments(arg_parser)
         args = arg_parser.parse_args()
@@ -143,6 +147,11 @@ class CCSparkJob(object):
         sc = SparkContext(
             appName=self.name,
             conf=conf)
+        if self.args.fs_s3a_access_key:
+            sc.hadoopConfiguration.set("fs.s3a.access.key", self.args.fs_s3a_access_key)
+            sc.hadoopConfiguration.set("fs.s3a.secret.key", self.args.fs_s3a_secret_key)
+            sc.hadoopConfiguration.set("fs.s3a.endpoint", "s3.amazonaws.com")
+ 
         sqlc = SQLContext(sparkContext=sc)
 
         self.init_accumulators(sc)

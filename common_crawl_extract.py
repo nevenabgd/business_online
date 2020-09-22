@@ -53,15 +53,14 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
             return ""
 
     def process_record(self, record):
-        uri = record.rec_headers.get_header('uri')
-        if uri is None:
-            uri = record.rec_headers.get_header('WARC-Target-URI')
+        #uri = record.rec_headers.get_header('uri')
+        #if uri is None:
+        #    uri = record.rec_headers.get_header('WARC-Target-URI')
         page = record.content_stream().read()
         if not self.is_html(record):
             self.records_non_html.add(1)
             return
-        # text = self.html_to_text(page, record)
-        text = "test"
+        text = self.html_to_text(page, record)
         yield uri, text
             
     def run_job(self, sc, sqlc):
