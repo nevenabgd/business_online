@@ -70,14 +70,19 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
                                  "warc_record_length").rdd
 
         output = warc_recs.mapPartitions(self.fetch_process_warc_records)
-
-        sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(self.args.num_output_partitions) \
-            .write \
-            .format(self.args.output_format) \
-            .option("compression", self.args.output_compression) \
-            .options(**self.get_output_options()) \
-            .saveAsTable(self.args.output)
+        
+        if self.args.s3_output_path:
+            sqlc.createDataFrame(output, schema=self.output_schema) \
+                .coalesce(self.args.num_output_partitions) \
+                .write.parquet(self.args.s3_output_path)
+        else:
+            sqlc.createDataFrame(output, schema=self.output_schema) \
+                .coalesce(self.args.num_output_partitions) \
+                .write \
+                .format(self.args.output_format) \
+                .option("compression", self.args.output_compression) \
+                .options(**self.get_output_options()) \
+                .saveAsTable(self.args.output)
 
         self.log_aggregators(sc)
 
