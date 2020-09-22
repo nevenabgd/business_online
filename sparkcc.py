@@ -143,14 +143,15 @@ class CCSparkJob(object):
 
         if self.args.spark_profiler:
             conf = conf.set("spark.python.profile", "true")
+            
+        if self.args.fs_s3a_access_key:
+            conf.set("fs.s3a.access.key", self.args.fs_s3a_access_key)
+            conf.set("fs.s3a.secret.key", self.args.fs_s3a_secret_key)
+            conf.set("fs.s3a.endpoint", "s3.amazonaws.com")
 
         sc = SparkContext(
             appName=self.name,
             conf=conf)
-        if self.args.fs_s3a_access_key:
-            sc.hadoopConfiguration.set("fs.s3a.access.key", self.args.fs_s3a_access_key)
-            sc.hadoopConfiguration.set("fs.s3a.secret.key", self.args.fs_s3a_secret_key)
-            sc.hadoopConfiguration.set("fs.s3a.endpoint", "s3.amazonaws.com")
  
         sqlc = SQLContext(sparkContext=sc)
 
