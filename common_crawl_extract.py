@@ -74,8 +74,9 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
         if self.args.s3_output_path:
             sqlc.createDataFrame(output, schema=self.output_schema) \
                 .coalesce(self.args.num_output_partitions) \
+                .write \
                 .options(**self.get_output_options()) \
-                .write.parquet(self.args.s3_output_path)
+                .parquet(self.args.s3_output_path)
         else:
             sqlc.createDataFrame(output, schema=self.output_schema) \
                 .coalesce(self.args.num_output_partitions) \
