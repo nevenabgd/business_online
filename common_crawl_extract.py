@@ -60,7 +60,8 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
         if not self.is_html(record):
             self.records_non_html.add(1)
             return
-        text = self.html_to_text(page, record)
+        # text = self.html_to_text(page, record)
+        text = "test"
         yield uri, text
             
     def run_job(self, sc, sqlc):

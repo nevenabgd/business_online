@@ -1,4 +1,4 @@
-spark-submit \
+time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	--py-files sparkcc.py \
     --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider \
@@ -10,7 +10,7 @@ spark-submit \
     --output_format json \
     --output_compression None
 
-spark-submit \
+time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	--py-files sparkcc.py \
     --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider \
