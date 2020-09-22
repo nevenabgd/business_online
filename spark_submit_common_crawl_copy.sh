@@ -22,4 +22,3 @@ time spark-submit \
     --s3_output_path s3a://dataeng-bucket/crawlerdata/twitter \
 	--fs_s3a_access_key $ACCESS_KEY \
 	--fs_s3a_secret_key $SECRET_KEY
-

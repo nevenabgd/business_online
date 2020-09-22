@@ -148,6 +148,9 @@ class CCSparkJob(object):
             conf.set("fs.s3a.access.key", self.args.fs_s3a_access_key)
             conf.set("fs.s3a.secret.key", self.args.fs_s3a_secret_key)
             conf.set("fs.s3a.endpoint", "s3.amazonaws.com")
+            
+            self.get_logger().info('S3 a: {}'.format(self.args.fs_s3a_access_key))
+            self.get_logger().info('S3 s: {}'.format(self.args.fs_s3a_secret_key))
 
         sc = SparkContext(
             appName=self.name,
