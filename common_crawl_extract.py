@@ -53,7 +53,7 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
             return soup.get_text(" ", strip=True), title
         except:
             self.records_parsing_failed.add(1)
-            return ""
+            return "",""
 
     def process_record(self, record):
         uri = record.rec_headers.get_header('WARC-Target-URI')

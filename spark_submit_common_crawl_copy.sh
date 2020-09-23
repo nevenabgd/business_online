@@ -3,7 +3,7 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	--py-files sparkcc.py \
     ./common_crawl_extract.py \
-    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE crawl = 'CC-MAIN-2020-16' AND subset = 'warc' and (position('twitter' in url_host_name) != 0)" \
+    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE crawl = 'CC-MAIN-2020-16' AND subset = 'warc' AND (position('twitter' in url_host_name) != 0)" \
     s3a://commoncrawl/cc-index/table/cc-main/warc/ \
     twitter \
     --num_output_partitions 10 \
@@ -14,22 +14,23 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	--py-files sparkcc.py \
     ./common_crawl_extract.py \
-    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE crawl = 'CC-MAIN-2020-16' AND subset = 'warc' AND (position('yelp' in url_host_name) != 0) limit 200000" \
-    s3a://commoncrawl/cc-index/table/cc-main/warc/ \
-    yelp \
-    --num_output_partitions 10 \
-    --s3_output_path s3a://dataeng-bucket/crawlerdata/yelp_test
+    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE subset = 'warc' AND content_languages='eng'  AND (position('news' in url_host_name) != 0)" \
+    s3a://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2020-16/ \
+    news \
+    --num_output_partitions 1 \
+    --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16
+
 
 # fast execution / for testing
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	--py-files sparkcc.py \
     ./common_crawl_extract.py \
-    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE crawl = 'CC-MAIN-2020-16' AND subset = 'warc' AND content_languages='eng' AND url_host_tld = 'is' LIMIT 100" \
-    s3a://commoncrawl/cc-index/table/cc-main/warc/ \
-    output7 \
+    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE subset = 'warc' AND content_languages='eng' AND url_host_tld = 'is' LIMIT 100" \
+    s3a://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2020-16/ \
+    news \
     --num_output_partitions 1 \
-    --s3_output_path s3a://dataeng-bucket/crawlerdata/test_fix
+    --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16
 
 
 
