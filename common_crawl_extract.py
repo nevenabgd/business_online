@@ -16,7 +16,6 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
     output_schema = StructType([
         StructField("url", StringType(), True),
         StructField("date", StringType(), True),
-        StructField("title", StringType(), True),
         StructField("text", StringType(), True)])
 
     records_parsing_failed = None
@@ -49,11 +48,10 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
             soup = BeautifulSoup(page, "lxml", from_encoding=encoding)
             for script in soup(["script", "style"]):
                 script.extract()
-            title = soup.find("title").string if soup.find(title) is not None else None
-            return soup.get_text(" ", strip=True), title
+            return soup.get_text(" ", strip=True)
         except:
             self.records_parsing_failed.add(1)
-            return "",""
+            return ""
 
     def process_record(self, record):
         uri = record.rec_headers.get_header('WARC-Target-URI')
@@ -62,9 +60,9 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
         if not self.is_html(record):
             self.records_non_html.add(1)
             return
-        text, title = self.html_to_text(page, record)
-        yield uri, date, title, text
-            
+        text = self.html_to_text(page, record)
+        yield uri, date, text
+
     def run_job(self, sc, sqlc):
         sqldf = self.load_dataframe(sc, self.args.num_input_partitions)
 
