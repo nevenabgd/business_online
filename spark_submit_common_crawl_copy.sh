@@ -8,6 +8,17 @@ time spark-submit \
     news \
     --num_output_partitions 200 \
     --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16
+	
+# Production - using our bucketed index
+time spark-submit \
+    --packages org.apache.hadoop:hadoop-aws:3.2.0 \
+	--py-files sparkcc.py \
+    ./common_crawl_extract.py \
+    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE bucket=0" \
+    s3a://dataeng-bucket/crawlerdata/news_index \
+    news \
+    --num_output_partitions 20 \
+    --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16/bucket=0/
 
 
 # fast execution / for testing
@@ -17,9 +28,19 @@ time spark-submit \
     ./common_crawl_extract.py \
     --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE subset = 'warc' AND content_languages='eng' AND url_host_tld = 'is' LIMIT 100" \
     s3a://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2020-16/ \
-    news \
+    fix \
     --num_output_partitions 1 \
-    --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16
+    --s3_output_path s3a://dataeng-bucket/crawlerdata/test_fix
+
+
+
+
+#Jupiter example - partition the index into 10 buckets
+input_bucket = 's3://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2020-16/'
+df = spark.read.parquet(input_bucket)
+df.createOrReplaceTempView("ccindex")
+sqlDF = spark.sql("SELECT url, warc_filename, warc_record_offset, warc_record_length, hash(url) % 10 as bucket FROM ccindex WHERE subset = 'warc' AND content_languages='eng'  AND (position('news' in url_host_name) != 0) limit 20")
+sqlDF.show(20, False)
 
 
 
