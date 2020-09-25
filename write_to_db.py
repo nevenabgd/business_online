@@ -60,11 +60,11 @@ class DBWriter(object):
         print("Inserting {} rows into db {}".format(num_rows, args.db))
 
         for row in sqldf.rdd.collect():
-            metrics = {
-                "Company_name": "{}".format(row[0]),
-                "Mentions": "{}".format(row[1]),
-                "Date": "{}".format(row[2])
-            }
+            metrics = (
+                row[0],
+                row[1],
+                row[2]
+                )
             print("{}".format(metrics))
             cursor.execute(self.INSERT_COMPANY_METRICS, metrics)
             
