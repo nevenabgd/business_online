@@ -14,27 +14,27 @@ class DBWriter(object):
                "(Company_name, Mentions, Date) "
                "VALUES (%s, %s, %s)")
 
-    def parse_arguments(script_name):
+    def parse_arguments(args, script_name):
         """ Returns the parsed arguments from the command line """
 
         arg_parser = argparse.ArgumentParser(prog=script_name,
                                          description="Script copying data from s3 results table to MySQL DB",
                                          conflict_handler='resolve')
-        arg_parser.add_argument("--input_path", required=True, type=str, dest='input_path',
+        arg_parser.add_argument("--input_path", type=str, required=True,
                                                  help='Input path')
-        arg_parser.add_argument("endpoint", required=True, type=str, dest='endpoint', 
+        arg_parser.add_argument("--endpoint", type=str, required=True,
                                                 help="MySQL endpoint")
-        arg_parser.add_argument("user", required=True, type=str, dest='user', 
+        arg_parser.add_argument("--user", type=str, required=True,
                                                 help="User name")
-        arg_parser.add_argument("pass", required=True, type=str, dest='password', 
+        arg_parser.add_argument("--password", type=str, required=True,
                                                 help="Password")
-        arg_parser.add_argument("db", required=True, type=str, dest='db', 
+        arg_parser.add_argument("--db", type=str, required=True,
                                                 help="Database name")
 
         args = arg_parser.parse_args()
         return args
     
-    def copy_s3_data_to_mysql():
+    def copy_s3_data_to_mysql(self):
         args = self.parse_arguments("write_to_db.py")
         cnx = mysql.connector.connect(user=args.user, password=args.password,
                               host=args.endpoint,
@@ -58,14 +58,14 @@ class DBWriter(object):
         
         num_rows = sqldf.count()
         print("Inserting {} rows into db {}".format(num_rows, args.db))
-        
         for row in sqldf:
             metrics = {
-                "Company_name": row[0],
-                "Mentions": row[1],
-                "Date": row[2]
+                "Company_name": "{}".format(row.name),
+                "Mentions": "{}".format(row.mentions),
+                "Date": "{}".format(row.date)
             }
-            cursor.execute(INSERT_COMPANY_METRICS, metrisc)
+            print("{}".format(metrics))
+            cursor.execute(self.INSERT_COMPANY_METRICS, metrics)
             
         print("Insert completed successfully!");
         
