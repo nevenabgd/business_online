@@ -58,11 +58,12 @@ class DBWriter(object):
         
         num_rows = sqldf.count()
         print("Inserting {} rows into db {}".format(num_rows, args.db))
-        for row in sqldf:
+
+        for row in sqldf.rdd.collect():
             metrics = {
-                "Company_name": "{}".format(row.name),
-                "Mentions": "{}".format(row.mentions),
-                "Date": "{}".format(row.date)
+                "Company_name": "{}".format(row[0]),
+                "Mentions": "{}".format(row[1]),
+                "Date": "{}".format(row[2])
             }
             print("{}".format(metrics))
             cursor.execute(self.INSERT_COMPANY_METRICS, metrics)

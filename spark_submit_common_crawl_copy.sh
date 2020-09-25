@@ -32,7 +32,15 @@ time spark-submit \
     --num_output_partitions 1 \
     --s3_output_path s3a://dataeng-bucket/crawlerdata/test_fix
 
+# Copy results from s3 to mysql
+time spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
+	./write_to_db.py \
+	--input_path s3a://dataeng-bucket/results --endpoint main-db.cytnlabniy01.us-east-1.rds.amazonaws.com \
+	--db test --user $DBUSER --password $DBPASS
 
+
+# Connect to mysql command
+mysql -u admin -p main-db1.cytnlabniy01.us-east-1.rds.amazonaws.com
 
 
 #Jupiter example - partition the index into 10 buckets
