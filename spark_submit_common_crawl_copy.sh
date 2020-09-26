@@ -40,7 +40,7 @@ time spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 
 
 # Connect to mysql command
-mysql -u admin -p main-db1.cytnlabniy01.us-east-1.rds.amazonaws.com
+mysql -u admin -p -h main-db.cytnlabniy01.us-east-1.rds.amazonaws.com
 
 
 #Jupiter example - partition the index into 10 buckets

@@ -70,6 +70,9 @@ class DBWriter(object):
             
         print("Insert completed successfully!");
         
+        # Make sure data is committed to the database
+        cnx.commit()
+        cursor.close()        
         cnx.close()
         
 
