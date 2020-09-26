@@ -67,7 +67,9 @@ class DBWriter(object):
                 )
             print("{}".format(metrics))
             cursor.execute(self.INSERT_COMPANY_METRICS, metrics)
-            
+           
+        cnx.commit()
+        cursor.close()
         print("Insert completed successfully!");
         
         # Make sure data is committed to the database
