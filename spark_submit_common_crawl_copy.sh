@@ -1,20 +1,15 @@
-# Repartition
+# Repartition cc index
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./repartition_cc_index.py \
     --crawl "CC-MAIN-2020-34"
 
-# Production - using our bucketed index
+# Download cc data
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
-	--py-files sparkcc.py \
-    ./common_crawl_extract.py \
-    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE bucket=0" \
-    s3a://dataeng-bucket/crawlerdata/news_index \
-    news \
-    --num_output_partitions 20 \
-    --s3_output_path s3a://dataeng-bucket/crawlerdata/news_2020_16/bucket=0/
-
+    ./download_cc_data.py \
+    --crawl "CC-MAIN-2020-34" \
+    --bucket 0
 
 # fast execution / for testing
 time spark-submit \

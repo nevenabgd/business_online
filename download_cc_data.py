@@ -75,7 +75,7 @@ class DownloadCCData(object):
             soup = BeautifulSoup(page, "lxml", from_encoding=encoding)
             for script in soup(["script", "style"]):
                 script.extract()
-            return soup.get_text(" ", strip=True)
+            return soup.get_text(" ", strip=True).lower()
         except:
             self.records_parsing_failed.add(1)
             return ""
