@@ -1,12 +1,26 @@
-from collections import Counter
+import argparse
+import logging
+import os
+import re
+
+from io import BytesIO
+from tempfile import TemporaryFile
 
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 
-from consts import CC_INDEX_S3_PATH, MY_S3_CRAWL_DATA_PATH, MY_S3_CRAWL_INDEX_PA
+import boto3
+import botocore
+
+from consts import CC_INDEX_S3_PATH, MY_S3_CRAWL_DATA_PATH, MY_S3_CRAWL_INDEX_PATH
 
 from urllib.parse import urlparse
 
+from warcio.archiveiterator import ArchiveIterator
+from warcio.recordloader import ArchiveLoadFailed
+
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import SQLContext, SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 
@@ -158,6 +172,7 @@ class DownloadCCData(object):
         sqlc.createDataFrame(output, schema=self.output_schema) \
             .coalesce(20) \
             .write \
+            .mode("overwrite") \
             .parquet(output_path)
 
         self.log_aggregators(sc)
