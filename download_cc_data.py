@@ -104,14 +104,13 @@ class DownloadCCData(object):
             warc_path = row[1]
             offset = int(row[2])
             length = int(row[3])
-            self.get_logger().debug("Fetching WARC record for {}".format(url))
             rangereq = 'bytes={}-{}'.format(offset, (offset+length-1))
             try:
                 response = s3client.get_object(Bucket=bucketname,
                                                Key=warc_path,
                                                Range=rangereq)
             except botocore.client.ClientError as exception:
-                self.get_logger().error(
+                print(
                     'Failed to download: {} ({}, offset: {}, length: {}) - {}'
                     .format(url, warc_path, offset, length, exception))
                 self.warc_input_failed.add(1)
@@ -121,11 +120,11 @@ class DownloadCCData(object):
                 for record in ArchiveIterator(record_stream,
                                               no_record_parse=no_parse):
                     for res in self.process_record(record):
+                        self.records_processed.add(1)
                         yield res
-                    self.records_processed.add(1)
             except ArchiveLoadFailed as exception:
                 self.warc_input_failed.add(1)
-                self.get_logger().error(
+                print(
                     'Invalid WARC record: {} ({}, offset: {}, length: {}) - {}'
                     .format(url, warc_path, offset, length, exception))
 
@@ -140,7 +139,7 @@ class DownloadCCData(object):
         sqldf.persist()
 
         num_rows = sqldf.count()
-        self.get_logger(sc).info(
+        print(
             "Number of records/rows matched by query: {}".format(num_rows))
 
         return sqldf

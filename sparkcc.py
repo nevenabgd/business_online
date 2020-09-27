@@ -156,7 +156,7 @@ class CCSparkJob(object):
         sc.stop()
 
     def log_aggregator(self, sc, agg, descr):
-        self.get_logger(sc).info(descr.format(agg.value))
+        print(descr.format(agg.value))
 
     def log_aggregators(self, sc):
         self.log_aggregator(sc, self.warc_input_processed,
@@ -202,7 +202,7 @@ class CCSparkJob(object):
                 self.get_logger().info('Reading from S3 {}'.format(uri))
                 s3match = s3pattern.match(uri)
                 if s3match is None:
-                    self.get_logger().error("Invalid S3 URI: " + uri)
+                    print("Invalid S3 URI: " + uri)
                     continue
                 bucketname = s3match.group(1)
                 path = s3match.group(2)
@@ -211,7 +211,7 @@ class CCSparkJob(object):
                 try:
                     s3client.download_fileobj(bucketname, path, warctemp)
                 except botocore.client.ClientError as exception:
-                    self.get_logger().error(
+                    print(
                         'Failed to download {}: {}'.format(uri, exception))
                     self.warc_input_failed.add(1)
                     warctemp.close()
@@ -219,7 +219,7 @@ class CCSparkJob(object):
                 warctemp.seek(0)
                 stream = warctemp
             elif uri.startswith('hdfs://'):
-                self.get_logger().error("HDFS input not implemented: " + uri)
+                print("HDFS input not implemented: " + uri)
                 continue
             else:
                 self.get_logger().info('Reading local stream {}'.format(uri))
@@ -229,7 +229,7 @@ class CCSparkJob(object):
                 try:
                     stream = open(uri, 'rb')
                 except IOError as exception:
-                    self.get_logger().error(
+                    print(
                         'Failed to open {}: {}'.format(uri, exception))
                     self.warc_input_failed.add(1)
                     continue
@@ -242,7 +242,7 @@ class CCSparkJob(object):
                     yield res
             except ArchiveLoadFailed as exception:
                 self.warc_input_failed.add(1)
-                self.get_logger().error(
+                print(
                     'Invalid WARC: {} - {}'.format(uri, exception))
             finally:
                 stream.close()
@@ -310,12 +310,12 @@ class CCIndexSparkJob(CCSparkJob):
     def load_table(self, sc, spark, table_path, table_name):
         df = spark.read.load(table_path)
         df.createOrReplaceTempView(table_name)
-        self.get_logger(sc).info(
+        print(
             "Schema of table {}:\n{}".format(table_name, df.schema))
 
     def execute_query(self, sc, spark, query):
         sqldf = spark.sql(query)
-        self.get_logger(sc).info("Executing query: {}".format(query))
+        print("Executing query: {}".format(query))
         sqldf.explain()
         return sqldf
 
@@ -330,11 +330,11 @@ class CCIndexSparkJob(CCSparkJob):
         sqldf.persist()
 
         num_rows = sqldf.count()
-        self.get_logger(sc).info(
+        print(
             "Number of records/rows matched by query: {}".format(num_rows))
 
         if partitions > 0:
-            self.get_logger(sc).info(
+            print(
                 "Repartitioning data to {} partitions".format(partitions))
             sqldf = sqldf.repartition(partitions)
 
@@ -393,7 +393,7 @@ class CCIndexWarcSparkJob(CCIndexSparkJob):
                                                Key=warc_path,
                                                Range=rangereq)
             except botocore.client.ClientError as exception:
-                self.get_logger().error(
+                print(
                     'Failed to download: {} ({}, offset: {}, length: {}) - {}'
                     .format(url, warc_path, offset, length, exception))
                 self.warc_input_failed.add(1)
@@ -407,7 +407,7 @@ class CCIndexWarcSparkJob(CCIndexSparkJob):
                     self.records_processed.add(1)
             except ArchiveLoadFailed as exception:
                 self.warc_input_failed.add(1)
-                self.get_logger().error(
+                print(
                     'Invalid WARC record: {} ({}, offset: {}, length: {}) - {}'
                     .format(url, warc_path, offset, length, exception))
 
