@@ -35,6 +35,8 @@ class DownloadCCData(object):
         StructField("date", StringType(), True),
         StructField("text", StringType(), True)])
 
+    warc_parse_http_header = True
+
     records_processed = None
     warc_input_processed = None
     warc_input_failed = None
@@ -81,6 +83,19 @@ class DownloadCCData(object):
         print(sc, self.records_processed, 'WARC/WAT/WET records processed = {}')
         print(sc, self.records_parsing_failed, 'records failed to parse = {}')
         print(sc, self.records_non_html, 'records not HTML = {}')
+
+    @staticmethod
+    def is_html(record):
+        """Return true if (detected) MIME type of a record is HTML"""
+        html_types = ['text/html', 'application/xhtml+xml']
+        if (('WARC-Identified-Payload-Type' in record.rec_headers) and
+            (record.rec_headers['WARC-Identified-Payload-Type'] in
+             html_types)):
+            return True
+        for html_type in html_types:
+            if html_type in record.content_type:
+                return True
+        return False
 
     def html_to_text(self, page, record):
         try:
@@ -159,8 +174,8 @@ class DownloadCCData(object):
         return sqldf
 
     def run_job(self, sc, sqlc):
-        crawl_partition_spec = "crawl={}".format(args.crawl)
-        bucket_partition_spec = "bucket={}".format(args.bucket)
+        crawl_partition_spec = "crawl={}".format(self.args.crawl)
+        bucket_partition_spec = "bucket={}".format(self.args.bucket)
         sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
 
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
