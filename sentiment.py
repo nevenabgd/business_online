@@ -36,10 +36,15 @@ class CompanySentiment(object):
             text = row[2]
             blob = TextBlob(text)
             sentiment = 0.0
+            count = 0
             for sentence in blob.sentences:
                 sentiment += sentence.sentiment.polarity
+                count += 1
 
-            sentiment_score = int(sentiment * 100)  # (-100, 100)
+            if count > 0:
+                sentiment_score = int(sentiment * 100 / count)  # (-100, 100)
+            else:
+                sentiment_score = None
             yield company_name, date, sentiment_score
 
     def run(self):
