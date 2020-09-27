@@ -40,7 +40,7 @@ class CompanyMentions(object):
         print("Result output path: {}".format(output_path))
 
         sqlDF = spark.sql( \
-                "SELECT d.company_name, d.date, count(*) as mentions" \
+                "SELECT d.company_name, d.date, count(*) as mentions " \
                 "FROM data d group by d.company_name, d.date")
         sqlDF.write \
             .mode("overwrite") \

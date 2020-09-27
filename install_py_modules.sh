@@ -4,3 +4,5 @@ sudo curl -O https://bootstrap.pypa.io/get-pip.py
 sudo python3 get-pip.py --user
 sudo /usr/bin/pip3 install botocore boto3 ujson warcio idna beautifulsoup4 lxml
 sudo /usr/bin/pip3 install mysql-connector-python
+sudo /usr/bin/pip3 install textblob
+sudo -u hadoop python3 -m textblob.download_corpora

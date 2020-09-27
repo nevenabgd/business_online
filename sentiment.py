@@ -61,7 +61,8 @@ class CompanySentiment(object):
         output_path = "{}/{}".format(MY_S3_SENTIMENT_DATA_PATH, crawl_partition_spec)
         print("Result output path: {}".format(output_path))
 
-        sc.createDataFrame(output, schema=self.output_schema) \
+        sqlc = SQLContext(sparkContext=sc)
+        sqlc.createDataFrame(output, schema=self.output_schema) \
             .coalesce(20) \
             .write \
             .mode("overwrite") \

@@ -18,6 +18,18 @@ time spark-submit \
     --crawl "CC-MAIN-2020-34" \
     --bucket 0
 
+# mentions
+time spark-submit \
+    --packages org.apache.hadoop:hadoop-aws:3.2.0 \
+    ./mentions.py \
+    --crawl "CC-MAIN-2020-34"
+
+# sentiment
+time spark-submit \
+    --packages org.apache.hadoop:hadoop-aws:3.2.0 \
+    ./sentiment.py \
+    --crawl "CC-MAIN-2020-34"
+
 # Copy results from s3 to mysql
 time spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 	./write_to_db.py \
