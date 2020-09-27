@@ -15,7 +15,7 @@ class RepartitionCCIndex(object):
         " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' " +
         "AND (position('news' in url_host_name) != 0)")
 
-    def parse_arguments(args, script_name):
+    def parse_arguments(self, script_name):
         """ Returns the parsed arguments from the command line """
 
         arg_parser = argparse.ArgumentParser(prog=script_name,
@@ -46,14 +46,16 @@ class RepartitionCCIndex(object):
         df.createOrReplaceTempView("ccindex")
 
         sqldf = spark.sql(args.query)
-        print("Executing query: {}".format(query))
+        print("Executing query: {}".format(args.query))
         sqldf.explain()
         sqldf.show(10, False)
         sqldf.persist()
         num_rows = sqldf.count()
         print("Number of records/rows matched by query: {}".format(num_rows))
         sqldf = sqldf.repartition(args.buckets, "url")
-        sqldf.write.mode("overwrite").parquet(MY_S3_CRAWL_INDEX_PATH)
+
+        output_path = "{}/crawl_partition_spec".format(MY_S3_CRAWL_INDEX_PATH)
+        sqldf.write.mode("overwrite").parquet(output_path)
 
 if __name__ == '__main__':
     repartitionIndex = RepartitionCCIndex()
