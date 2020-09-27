@@ -11,7 +11,7 @@ class RepartitionCCIndex(object):
 
     name = "RepartitionCCIndex"
 
-    DEFAULT_INDEX_QUERY=("SELECT url, warc_filename, warc_record_offset, warc_record_length" +
+    DEFAULT_INDEX_QUERY=("SELECT abs(hash(url)) & 10 as bucket, url, warc_filename, warc_record_offset, warc_record_length" +
         " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' " +
         "AND (position('news' in url_host_name) != 0)")
 
@@ -23,8 +23,6 @@ class RepartitionCCIndex(object):
             conflict_handler='resolve')
         arg_parser.add_argument("--crawl", type=str, required=True,
                                 help='crawl')
-        arg_parser.add_argument("--buckets", type=int, required=False, default=10,
-                                help="Number of buckets")
         arg_parser.add_argument("--query", type=str, required=False, default=self.DEFAULT_INDEX_QUERY,
                                 help="Index sql query")
 
@@ -52,10 +50,11 @@ class RepartitionCCIndex(object):
         sqldf.persist()
         num_rows = sqldf.count()
         print("Number of records/rows matched by query: {}".format(num_rows))
-        sqldf = sqldf.repartition(args.buckets, "url")
 
         output_path = "{}/{}".format(MY_S3_CRAWL_INDEX_PATH, crawl_partition_spec)
-        sqldf.write.mode("overwrite").parquet(output_path)
+        sqldf.write.partitionBy("bucket").mode("overwrite").parquet(output_path)
+
+        sc.stop()
 
 if __name__ == '__main__':
     repartitionIndex = RepartitionCCIndex()

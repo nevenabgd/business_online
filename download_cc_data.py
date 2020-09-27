@@ -3,17 +3,17 @@ from collections import Counter
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 
+from consts import CC_INDEX_S3_PATH, MY_S3_CRAWL_DATA_PATH, MY_S3_CRAWL_INDEX_PA
+
 from urllib.parse import urlparse
 
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 
-from sparkcc import CCIndexWarcSparkJob
 
-
-class CommonCrawlExtractor(CCIndexWarcSparkJob):
+class DownloadCCData(object):
     """ """
 
-    name = "CommonCrawlExtractor"
+    name = "DownloadCCData"
     
     output_schema = StructType([
         StructField("url", StringType(), True),
@@ -21,28 +21,52 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
         StructField("date", StringType(), True),
         StructField("text", StringType(), True)])
 
+    records_processed = None
+    warc_input_processed = None
+    warc_input_failed = None
     records_parsing_failed = None
     records_non_html = None
-    
-    def add_arguments(self, parser):
-        super(CommonCrawlExtractor, self).add_arguments(parser)
-        agroup = parser.add_mutually_exclusive_group(required=False)
-        agroup.add_argument("--s3_output_path", default=None,
-                            help="S3 output location")
+
+    def parse_arguments(self):
+        """ Returns the parsed arguments from the command line """
+
+        arg_parser = argparse.ArgumentParser(prog=self.name,
+            description="Copy common crawl index into our account and reparition",
+            conflict_handler='resolve')
+        arg_parser.add_argument("--crawl", type=str, required=True,
+                                help='crawl')
+        arg_parser.add_argument("--bucket", type=str, required=True,
+                                help="Url bucket to process")
+
+        args = arg_parser.parse_args()
+        return args
 
     def init_accumulators(self, sc):
-        super(CommonCrawlExtractor, self).init_accumulators(sc)
-
+        self.records_processed = sc.accumulator(0)
+        self.warc_input_processed = sc.accumulator(0)
+        self.warc_input_failed = sc.accumulator(0)
         self.records_parsing_failed = sc.accumulator(0)
         self.records_non_html = sc.accumulator(0)
 
-    def log_aggregators(self, sc):
-        super(CommonCrawlExtractor, self).log_aggregators(sc)
+    def run(self):
+        self.args = self.parse_arguments()
 
-        self.log_aggregator(sc, self.records_parsing_failed,
-                            'records failed to parse = {}')
-        self.log_aggregator(sc, self.records_non_html,
-                            'records not HTML = {}')
+        conf = SparkConf()
+        sc = SparkContext(appName=self.name, conf=conf)
+        sqlc = SQLContext(sparkContext=sc)
+
+        self.init_accumulators(sc)
+
+        self.run_job(sc, sqlc)
+
+        sc.stop()
+    
+    def log_aggregators(self, sc):
+        print(sc, self.warc_input_processed, 'WARC/WAT/WET input files processed = {}')
+        print(sc, self.warc_input_failed, 'WARC/WAT/WET input files failed = {}')
+        print(sc, self.records_processed, 'WARC/WAT/WET records processed = {}')
+        print(sc, self.records_parsing_failed, 'records failed to parse = {}')
+        print(sc, self.records_non_html, 'records not HTML = {}')
 
     def html_to_text(self, page, record):
         try:
@@ -68,21 +92,78 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
         text = self.html_to_text(page, record)
         yield uri, domain, date, text
 
+    def fetch_process_warc_records(self, rows):
+        no_sign_request = botocore.client.Config(
+            signature_version=botocore.UNSIGNED)
+        s3client = boto3.client('s3', config=no_sign_request)
+        bucketname = "commoncrawl"
+        no_parse = (not self.warc_parse_http_header)
+
+        for row in rows:
+            url = row[0]
+            warc_path = row[1]
+            offset = int(row[2])
+            length = int(row[3])
+            self.get_logger().debug("Fetching WARC record for {}".format(url))
+            rangereq = 'bytes={}-{}'.format(offset, (offset+length-1))
+            try:
+                response = s3client.get_object(Bucket=bucketname,
+                                               Key=warc_path,
+                                               Range=rangereq)
+            except botocore.client.ClientError as exception:
+                self.get_logger().error(
+                    'Failed to download: {} ({}, offset: {}, length: {}) - {}'
+                    .format(url, warc_path, offset, length, exception))
+                self.warc_input_failed.add(1)
+                continue
+            record_stream = BytesIO(response["Body"].read())
+            try:
+                for record in ArchiveIterator(record_stream,
+                                              no_record_parse=no_parse):
+                    for res in self.process_record(record):
+                        yield res
+                    self.records_processed.add(1)
+            except ArchiveLoadFailed as exception:
+                self.warc_input_failed.add(1)
+                self.get_logger().error(
+                    'Invalid WARC record: {} ({}, offset: {}, length: {}) - {}'
+                    .format(url, warc_path, offset, length, exception))
+
+    def load_dataframe(self, sc, crawl_partition_spec, bucket_partition_spec):
+        spark = SparkSession.builder.config(conf=sc.getConf()).getOrCreate()
+
+        index_input_path = "{}/{}/{}".format(MY_S3_CRAWL_INDEX_PATH, crawl_partition_spec, bucket_partition_spec)
+
+        df = spark.read.load(index_input_path)
+        df.createOrReplaceTempView("ccindex")
+        sqldf = spark.sql("SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex")
+        sqldf.persist()
+
+        num_rows = sqldf.count()
+        self.get_logger(sc).info(
+            "Number of records/rows matched by query: {}".format(num_rows))
+
+        return sqldf
+
     def run_job(self, sc, sqlc):
-        sqldf = self.load_dataframe(sc, self.args.num_input_partitions)
+        crawl_partition_spec = "crawl={}".format(args.crawl)
+        bucket_partition_spec = "bucket={}".format(args.bucket)
+        sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
 
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
                                  "warc_record_length").rdd
                              
-        output = warc_recs.mapPartitions(self.fetch_process_warc_records)  
+        output = warc_recs.mapPartitions(self.fetch_process_warc_records)
+
+        output_path = "{}/{}/{}".format(MY_S3_CRAWL_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(self.args.num_output_partitions) \
+            .coalesce(20) \
             .write \
-            .parquet(self.args.s3_output_path)
+            .parquet(output_path)
 
         self.log_aggregators(sc)
 
 
 if __name__ == '__main__':
-    job = CommonCrawlExtractor()
+    job = DownloadCCData()
     job.run()
