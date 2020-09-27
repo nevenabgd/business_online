@@ -3,6 +3,8 @@ from collections import Counter
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 
+from urllib.parse import urlparse
+
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 from sparkcc import CCIndexWarcSparkJob
@@ -15,6 +17,7 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
     
     output_schema = StructType([
         StructField("url", StringType(), True),
+        StructField("domain", StringType(), True),
         StructField("date", StringType(), True),
         StructField("text", StringType(), True)])
 
@@ -55,13 +58,15 @@ class CommonCrawlExtractor(CCIndexWarcSparkJob):
 
     def process_record(self, record):
         uri = record.rec_headers.get_header('WARC-Target-URI')
+        uri_parsed = urlparse(uri)
+        domain = uri_parsed.netloc
         date = record.rec_headers.get_header('WARC-Date')[:10]
         page = record.content_stream().read()
         if not self.is_html(record):
             self.records_non_html.add(1)
             return
         text = self.html_to_text(page, record)
-        yield uri, date, text
+        yield uri, domain, date, text
 
     def run_job(self, sc, sqlc):
         sqldf = self.load_dataframe(sc, self.args.num_input_partitions)
