@@ -9,7 +9,7 @@ MY_S3_CRAWL_INDEX_PATH="{}/{}".format(MY_S3_ROOT_PATH, "crawl_index")
 MY_S3_CRAWL_DATA_PATH="{}/{}".format(MY_S3_ROOT_PATH, "crawl_data")
 
 # company data
-MY_S3_COMPANY_DATA_PATH="s3a://dataeng-bucket/company_data_us_mvp"
+MY_S3_COMPANY_DATA_PATH="s3a://dataeng-bucket/company_data"
 
 # cross joined data
 MY_S3_CROSS_JOINED_DATA_PATH="{}/{}".format(MY_S3_ROOT_PATH, "cross_joined_data")
