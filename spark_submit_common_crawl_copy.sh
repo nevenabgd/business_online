@@ -11,16 +11,12 @@ time spark-submit \
     --crawl "CC-MAIN-2020-34" \
     --bucket 0
 
-# fast execution / for testing
+# cross-join
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
-	--py-files sparkcc.py \
-    ./common_crawl_extract.py \
-    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex WHERE subset = 'warc' AND content_languages='eng' AND url_host_tld = 'is' LIMIT 100" \
-    s3a://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2020-16/ \
-    fix \
-    --num_output_partitions 1 \
-    --s3_output_path s3a://dataeng-bucket/crawlerdata/test_fix
+    ./cross_join.py \
+    --crawl "CC-MAIN-2020-34" \
+    --bucket 0
 
 # Copy results from s3 to mysql
 time spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \

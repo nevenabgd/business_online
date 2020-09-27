@@ -36,13 +36,19 @@ class CrossJoin(object):
         bucket_partition_spec = "bucket={}".format(args.bucket)
         crawl_input_path = "{}/{}/{}".format(MY_S3_CRAWL_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
 
-        df_company= spark.read.parquet(company_input_path)
+        print("Reading companies input from: {}".format(company_input_path))
+        df_company= spark.read.csv(company_input_path)
         df_company.createOrReplaceTempView("companies")
+        df_company.show()
         
+        print("Reading crawl input from: {}".format(crawl_input_path))
         df1 = spark.read.parquet(crawl_input_path)
+        df1.show()
         df1.createOrReplaceTempView("data")
 
         output_path = "{}/{}/{}".format(MY_S3_CROSS_JOINED_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
+
+        print("Writing result to: {}".format(output_path))
         
         sqlDF = spark.sql( \
                 "SELECT d.url, d.domain, d.text, d.date, c.name " \
