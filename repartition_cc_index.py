@@ -40,9 +40,9 @@ class RepartitionCCIndex(object):
         spark = SparkSession.builder.config(conf=sc.getConf()).getOrCreate()
 
         crawl_partition_spec = "crawl={}".format(args.crawl)
-        index_partition_path = "{}/{}".format(CC_INDEX_S3_PATH, crawl_partition_spec)
+        index_path = "{}/{}".format(CC_INDEX_S3_PATH, crawl_partition_spec)
 
-        df = spark.read.load(index_partition_path)
+        df = spark.read.load(index_path)
         df.createOrReplaceTempView("ccindex")
 
         sqldf = spark.sql(args.query)
@@ -54,7 +54,7 @@ class RepartitionCCIndex(object):
         print("Number of records/rows matched by query: {}".format(num_rows))
         sqldf = sqldf.repartition(args.buckets, "url")
 
-        output_path = "{}/crawl_partition_spec".format(MY_S3_CRAWL_INDEX_PATH)
+        output_path = "{}/{}".format(MY_S3_CRAWL_INDEX_PATH, crawl_partition_spec)
         sqldf.write.mode("overwrite").parquet(output_path)
 
 if __name__ == '__main__':
