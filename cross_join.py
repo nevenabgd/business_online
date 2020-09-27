@@ -15,7 +15,7 @@ class CrossJoin(object):
         """ Returns the parsed arguments from the command line """
 
         arg_parser = argparse.ArgumentParser(prog=self.name,
-            description="Copy common crawl index into our account and reparition",
+            description="Joins companies name file and data",
             conflict_handler='resolve')
         arg_parser.add_argument("--crawl", type=str, required=True,
                                 help='crawl')

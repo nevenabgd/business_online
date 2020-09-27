@@ -19,7 +19,7 @@ class RepartitionCCIndex(object):
         """ Returns the parsed arguments from the command line """
 
         arg_parser = argparse.ArgumentParser(prog=script_name,
-            description="Copy common crawl index into our account and reparition",
+            description="Repartitioning cc index into 10 buckets",
             conflict_handler='resolve')
         arg_parser.add_argument("--crawl", type=str, required=True,
                                 help='crawl')
