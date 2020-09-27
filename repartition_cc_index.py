@@ -11,9 +11,9 @@ class RepartitionCCIndex(object):
 
     name = "RepartitionCCIndex"
 
-    DEFAULT_INDEX_QUERY="SELECT url, warc_filename, warc_record_offset, warc_record_length"
-        " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' "
-        "AND (position('news' in url_host_name) != 0)"
+    DEFAULT_INDEX_QUERY=("SELECT url, warc_filename, warc_record_offset, warc_record_length" +
+        " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' " +
+        "AND (position('news' in url_host_name) != 0)")
 
     def parse_arguments(args, script_name):
         """ Returns the parsed arguments from the command line """
@@ -23,9 +23,9 @@ class RepartitionCCIndex(object):
             conflict_handler='resolve')
         arg_parser.add_argument("--crawl", type=str, required=True,
                                 help='crawl')
-        arg_parser.add_argument("--buckets", type=int, required=False, default=10
+        arg_parser.add_argument("--buckets", type=int, required=False, default=10,
                                 help="Number of buckets")
-        arg_parser.add_argument("--query", type=str, required=False, default=10
+        arg_parser.add_argument("--query", type=str, required=False, default=self.DEFAULT_INDEX_QUERY,
                                 help="Index sql query")
 
         args = arg_parser.parse_args()
