@@ -10,8 +10,6 @@ sudo python3 -c "import nltk; nltk.download('brown',download_dir='/usr/share/nlt
 sudo python3 -c "import nltk; nltk.download('punkt',download_dir='/usr/share/nltk_data');"
 sudo python3 -c "import nltk; nltk.download('wordnet',download_dir='/usr/share/nltk_data');"
 sudo python3 -c "import nltk; nltk.download('averaged_perceptron_tagger',download_dir='/usr/share/nltk_data');"
-sudo python3 -c "import nltk; nltk.download('conll2000',download_dir='/usr/share/nltk_data');"
-sudo python3 -c "import nltk; nltk.download('movie_reviews',download_dir='/usr/share/nltk_data');"
 
 # All nltk
 # sudo python3 -c "import nltk; nltk.download('all-nltk',download_dir='/usr/share/nltk_data');"

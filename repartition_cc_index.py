@@ -13,7 +13,7 @@ class RepartitionCCIndex(object):
 
     DEFAULT_INDEX_QUERY=("SELECT abs(hash(url)) & 10 as bucket, url, warc_filename, warc_record_offset, warc_record_length" +
         " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' " +
-        "AND (position('news' in url_host_name) != 0) LIMIT 2000")  # TODO: remove limit
+        "AND (position('news' in url_host_name) != 0)")
 
     def parse_arguments(self, script_name):
         """ Returns the parsed arguments from the command line """
