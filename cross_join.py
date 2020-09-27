@@ -9,6 +9,8 @@ from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 class CrossJoin(object):
 
+    name = "CrossJoin"
+
     def parse_arguments(self):
         """ Returns the parsed arguments from the command line """
 
@@ -37,7 +39,7 @@ class CrossJoin(object):
         crawl_input_path = "{}/{}/{}".format(MY_S3_CRAWL_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
 
         print("Reading companies input from: {}".format(company_input_path))
-        df_company= spark.read.csv(company_input_path)
+        df_company= spark.read.option("header", True).csv(company_input_path)
         df_company.createOrReplaceTempView("companies")
         df_company.show()
         
@@ -51,7 +53,7 @@ class CrossJoin(object):
         print("Writing result to: {}".format(output_path))
         
         sqlDF = spark.sql( \
-                "SELECT d.url, d.domain, d.text, d.date, c.name " \
+                "SELECT d.url, d.domain, d.text, d.date, c.name as company_name " \
                 "FROM companies c, data d where (position(lower(c.name) in text) != 0)")
         sqlDF.write \
             .mode("overwrite") \
@@ -61,6 +63,6 @@ class CrossJoin(object):
 
 
 if __name__ == '__main__':
-    cross_join = CrosJoin()
+    cross_join = CrossJoin()
     cross_join.run()
   
