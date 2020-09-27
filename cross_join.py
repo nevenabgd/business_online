@@ -44,12 +44,14 @@ class CrossJoin(object):
 
         output_path = "{}/{}/{}".format(MY_S3_CROSS_JOINED_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
         
-        sqlDF = spark.sql("SELECT c.name, COUNT(*) as mentions, date "
-                "FROM companies as c,data where (position(lower(c.name) in lower(text)) != 0) \
-                group by c.name, date order by date")
+        sqlDF = spark.sql( \
+                "SELECT d.url, d.domain, d.text, d.date, c.name " \
+                "FROM companies c, data d where (position(lower(c.name) in text) != 0)")
         sqlDF.write \
             .mode("overwrite") \
             .parquet(output_path)
+
+        sc.stop()
 
 
 if __name__ == '__main__':
