@@ -14,6 +14,8 @@ import botocore
 
 from consts import CC_INDEX_S3_PATH, MY_S3_CRAWL_DATA_PATH, MY_S3_CRAWL_INDEX_PATH
 
+import random
+
 from urllib.parse import urlparse
 
 from warcio.archiveiterator import ArchiveIterator
@@ -129,6 +131,11 @@ class DownloadCCData(object):
         no_parse = (not self.warc_parse_http_header)
 
         for row in rows:
+
+            # 50% sample
+            if random.random() > 0.5:
+                continue
+
             url = row[0]
             warc_path = row[1]
             offset = int(row[2])

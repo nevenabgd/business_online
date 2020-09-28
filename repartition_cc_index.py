@@ -11,7 +11,7 @@ class RepartitionCCIndex(object):
 
     name = "RepartitionCCIndex"
 
-    DEFAULT_INDEX_QUERY=("SELECT abs(hash(url)) & 10 as bucket, url, warc_filename, warc_record_offset, warc_record_length" +
+    DEFAULT_INDEX_QUERY=("SELECT abs(hash(url)) % 10 as bucket, url, warc_filename, warc_record_offset, warc_record_length" +
         " FROM ccindex WHERE subset = 'warc' AND content_languages='eng' " +
         "AND (position('news' in url_host_name) != 0)")
 
@@ -52,7 +52,7 @@ class RepartitionCCIndex(object):
         print("Number of records/rows matched by query: {}".format(num_rows))
 
         output_path = "{}/{}".format(MY_S3_CRAWL_INDEX_PATH, crawl_partition_spec)
-        sqldf.coalesce(20).write.partitionBy("bucket").mode("overwrite").parquet(output_path)
+        sqldf.coalesce(10).write.partitionBy("bucket").mode("overwrite").parquet(output_path)
 
         sc.stop()
 
