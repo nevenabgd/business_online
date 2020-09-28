@@ -180,11 +180,8 @@ class DownloadCCData(object):
         bucket_partition_spec = "bucket={}".format(self.args.bucket)
         sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
 
-        # Split into smaller tasks to better parallelize execution
-        sqldf = sqldf.repartition(1000)
-
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
-                                 "warc_record_length").rdd
+                                 "warc_record_length").repartition(1000).rdd
                              
         output = warc_recs.mapPartitions(self.fetch_process_warc_records)
 
@@ -194,6 +191,8 @@ class DownloadCCData(object):
             .write \
             .mode("overwrite") \
             .parquet(output_path)
+
+            # .option("spark.task.cpus", 0.5)
 
         self.log_aggregators(sc)
 
