@@ -131,11 +131,6 @@ class DownloadCCData(object):
         no_parse = (not self.warc_parse_http_header)
 
         for row in rows:
-
-            # 50% sample
-            if random.random() > 0.5:
-                continue
-
             url = row[0]
             warc_path = row[1]
             offset = int(row[2])
@@ -184,6 +179,9 @@ class DownloadCCData(object):
         crawl_partition_spec = "crawl={}".format(self.args.crawl)
         bucket_partition_spec = "bucket={}".format(self.args.bucket)
         sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
+
+        # Split into smaller tasks to better parallelize execution
+        sqldf = sqldf.repartition(1000)
 
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
                                  "warc_record_length").rdd
