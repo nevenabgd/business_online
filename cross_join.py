@@ -56,6 +56,7 @@ class CrossJoin(object):
                 "SELECT d.url, d.domain, d.text, d.date, c.name as company_name " \
                 "FROM companies c, data d where (position(lower(c.name) in text) != 0)")
         sqlDF.write \
+            .coalesce(20) \
             .mode("overwrite") \
             .parquet(output_path)
 

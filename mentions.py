@@ -43,6 +43,7 @@ class CompanyMentions(object):
                 "SELECT d.company_name, d.date, count(*) as mentions " \
                 "FROM data d group by d.company_name, d.date")
         sqlDF.write \
+            .coalesce(10) \
             .mode("overwrite") \
             .parquet(output_path)
 

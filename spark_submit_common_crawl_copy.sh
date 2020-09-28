@@ -8,6 +8,7 @@ time spark-submit \
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
+	--conf spark.task.cpus=0.5 \
     --crawl "CC-MAIN-2020-34" \
     --bucket 0
 
@@ -23,7 +24,7 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./mentions.py \
     --crawl "CC-MAIN-2020-34"
-
+	
 # sentiment
 time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \

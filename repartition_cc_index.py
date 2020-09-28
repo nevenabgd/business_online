@@ -52,7 +52,7 @@ class RepartitionCCIndex(object):
         print("Number of records/rows matched by query: {}".format(num_rows))
 
         output_path = "{}/{}".format(MY_S3_CRAWL_INDEX_PATH, crawl_partition_spec)
-        sqldf.write.partitionBy("bucket").mode("overwrite").parquet(output_path)
+        sqldf.coalesce(20).write.partitionBy("bucket").mode("overwrite").parquet(output_path)
 
         sc.stop()
 

@@ -68,7 +68,7 @@ class CompanySentiment(object):
 
         sqlc = SQLContext(sparkContext=sc)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(20) \
+            .coalesce(10) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
