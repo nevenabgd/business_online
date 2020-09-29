@@ -7,7 +7,7 @@ time spark-submit \
 # Download cc data
 time spark-submit \
     --executor-memory 1G \
-    --num-executors 100 \
+    --num-executors 40 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
     --crawl "CC-MAIN-2020-34" \
@@ -15,6 +15,8 @@ time spark-submit \
 
 # cross-join
 time spark-submit \
+    --executor-memory 6G \
+    --num-executors 10 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./cross_join.py \
     --crawl "CC-MAIN-2020-34" \
