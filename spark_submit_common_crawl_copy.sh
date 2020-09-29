@@ -7,6 +7,7 @@ time spark-submit \
 # Download cc data
 time spark-submit \
     --executor-memory 1G \
+    --num-executors 30 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
     --crawl "CC-MAIN-2020-34" \
