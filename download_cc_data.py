@@ -181,18 +181,16 @@ class DownloadCCData(object):
         sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
 
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
-                                 "warc_record_length").repartition(1000, "warc_filename").rdd
+                                 "warc_record_length").rdd
 
-        print("RDD: number of partitions: {}, {}".format(warc_recs.getNumPartitions(), warc_recs.count))
+        print("RDD: number of partitions: {}".format(warc_recs.getNumPartitions()))
 
         output = warc_recs.mapPartitions(self.fetch_process_warc_records)
         output.cache()
 
-        print("RDD: mapPartitions execution completed")
-
         output_path = "{}/{}/{}".format(MY_S3_CRAWL_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(100) \
+            .coalesce(1000) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
