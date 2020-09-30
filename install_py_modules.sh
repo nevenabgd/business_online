@@ -6,6 +6,8 @@ sudo /usr/bin/pip3 install botocore boto3 ujson warcio idna beautifulsoup4 lxml
 sudo /usr/bin/pip3 install mysql-connector-python
 sudo /usr/bin/pip3 install textblob
 sudo /usr/bin/pip3 install nltk
+sudo /usr/bin/pip3 install pandas
+sudo /usr/bin/pip3 dash==1.16.2
 sudo python3 -c "import nltk; nltk.download('brown',download_dir='/usr/share/nltk_data');"
 sudo python3 -c "import nltk; nltk.download('punkt',download_dir='/usr/share/nltk_data');"
 sudo python3 -c "import nltk; nltk.download('wordnet',download_dir='/usr/share/nltk_data');"

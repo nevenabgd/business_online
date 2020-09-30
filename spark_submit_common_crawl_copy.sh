@@ -11,7 +11,7 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
     --crawl "CC-MAIN-2020-34" \
-    --bucket 1
+    --bucket 3
 
 # cross-join
 time spark-submit \
@@ -40,10 +40,15 @@ time spark-submit \
 
 # Copy results from s3 to mysql
 time spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
+    --executor-memory 1G \
+    --num-executors 1 \
 	./write_to_db.py \
-	--input_path s3a://dataeng-bucket/results --endpoint main-db.cytnlabniy01.us-east-1.rds.amazonaws.com \
-	--db test --user $DBUSER --password $DBPASS
-
+	--crawl "CC-MAIN-2020-34" --endpoint main-db.cytnlabniy01.us-east-1.rds.amazonaws.com \
+	--db test --user admin --password $DBPASS
+	
+python3 ./dashui.py \
+	--endpoint main-db.cytnlabniy01.us-east-1.rds.amazonaws.com \
+	--db test --user admin --password $DBPASS
 
 # Connect to mysql command
 mysql -u admin -p -h main-db.cytnlabniy01.us-east-1.rds.amazonaws.com

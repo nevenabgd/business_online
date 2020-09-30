@@ -15,7 +15,7 @@ class DBWriter(object):
     CREATE_TABLE = ("""
         CREATE TABLE IF NOT EXISTS company_metrics
         (
-            id int not null auto increment primary key,
+            id int not null auto_increment primary key,
             crawl varchar(30) not null,
             company_name varchar(100) not null,
             date date not null,
@@ -29,7 +29,7 @@ class DBWriter(object):
                "VALUES (%s, %s, %s, %s, %s)")
 
     DELETE_CRAWL = ("DELETE FROM company_metrics "
-               "WHERE crawl = {}")
+               "WHERE crawl = '{}'")
 
     # table: top_domains
     # crawl, company_name, domain, mentions (only for top 3 domains)
@@ -67,11 +67,11 @@ class DBWriter(object):
             print("Result is {}".format(name))
         
         print("Creating company_metrics table if not exist")
-        cursor.execute(CREATE_TABLE)
+        cursor.execute(self.CREATE_TABLE)
         cnx.commit()
 
         print("Clearing data from the previous insert for crawl={}".format(args.crawl))
-        cursor.execute(DELETE_CRAWL.format(args.crawl))
+        cursor.execute(self.DELETE_CRAWL.format(args.crawl))
         cnx.commit()
 
         crawl_partition_spec = "crawl={}".format(args.crawl)
