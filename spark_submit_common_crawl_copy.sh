@@ -11,7 +11,7 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
     --crawl "CC-MAIN-2020-34" \
-    --bucket 3
+    --bucket 6
 
 # cross-join
 time spark-submit \

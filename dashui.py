@@ -3,16 +3,14 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 
+import argparse
 import mysql.connector
 
-from pandas_datareader import data as web
-from datetime import datetime as dt
 import pandas as pd
 
 app = dash.Dash('Business Online')
 
-# command line args needed for the DB connection
-ARGS = None
+# db connection
 CONN = None
 
 app.layout = html.Div([
@@ -33,19 +31,19 @@ def update_graph(selected_dropdown_value):
     company_name = selected_dropdown_value
 
     cursor = CONN.cursor()
-    cursor.execute("select date, metric_value from company_metrics where company_name = company_name and metric = 'mentions'")
+    cursor.execute("select date, metric_value from company_metrics where company_name=%s and metric_name = 'mentions' order by date asc", (company_name) )
 
     dates = []
     values = []
 
     for (date, value) in cursor:
         print("Result is {}, {}".format(date, value))
-        date.append(date)
+        dates.append(date)
         values.append(value)
 
     cursor.close()
 
-    df = pd.DataFrame({ "date": dates, "mentions": values }})
+    df = pd.DataFrame({ "date": dates, "mentions": values })
 
     return {
         'data': [{
@@ -76,8 +74,26 @@ def parse_arguments():
     return args
 
 if __name__ == '__main__':
-    ARGS = parse_arguments()
+    args = parse_arguments()
     CONN = mysql.connector.connect(user=args.user, password=args.password,
-                                    host=args.endpoint,
-                                    database=args.db)
+                                   host=args.endpoint,
+                                   database=args.db)
+
+    cursor = CONN.cursor()
+    cursor.execute("select distinct company_name from company_metrics order by company_name asc")
+
+    options = []
+    for company in cursor:
+        options.append({'label': company, 'value': company})
+    cursor.close()
+
+    app.layout = html.Div([
+        dcc.Dropdown(
+            id='my-dropdown',
+            options=options,
+            value='Microsoft'
+        ),
+        dcc.Graph(id='my-graph')
+    ], style={'width': '500'})
+
     app.run_server()
