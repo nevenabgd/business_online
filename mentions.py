@@ -1,6 +1,6 @@
 import argparse
 
-from consts import MY_S3_CROSS_JOINED_DATA_PATH, MY_S3_AGGREGATED_DATA_PATH
+from consts import MY_S3_CROSS_JOINED_DATA_PATH, MY_S3_MENTIONS_DATA_PATH
 
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession
@@ -36,7 +36,7 @@ class CompanyMentions(object):
         df = spark.read.load(data_input_path)
         df.createOrReplaceTempView("data")
 
-        output_path = "{}/{}".format(MY_S3_AGGREGATED_DATA_PATH, crawl_partition_spec)
+        output_path = "{}/{}".format(MY_S3_MENTIONS_DATA_PATH, crawl_partition_spec)
         print("Result output path: {}".format(output_path))
 
         sqlDF = spark.sql( \

@@ -166,7 +166,7 @@ class DownloadCCData(object):
 
         df = spark.read.load(index_input_path)
         df.createOrReplaceTempView("ccindex")
-        sqldf = spark.sql("SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex")
+        sqldf = spark.sql("SELECT url, warc_filename, warc_record_offset, warc_record_length FROM ccindex").orderBy("warc_filename")
         sqldf.persist()
 
         num_rows = sqldf.count()

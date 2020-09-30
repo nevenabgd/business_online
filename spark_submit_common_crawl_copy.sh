@@ -11,25 +11,29 @@ time spark-submit \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./download_cc_data.py \
     --crawl "CC-MAIN-2020-34" \
-    --bucket 0
+    --bucket 1
 
 # cross-join
 time spark-submit \
-    --executor-memory 6G \
-    --num-executors 10 \
+    --executor-memory 5G \
+    --num-executors 14 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./cross_join.py \
     --crawl "CC-MAIN-2020-34" \
-    --bucket 0
+    --bucket 1
 
 # mentions
 time spark-submit \
+    --executor-memory 5G \
+    --num-executors 14 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./mentions.py \
     --crawl "CC-MAIN-2020-34"
-	
+
 # sentiment
 time spark-submit \
+    --executor-memory 5G \
+    --num-executors 14 \
     --packages org.apache.hadoop:hadoop-aws:3.2.0 \
     ./sentiment.py \
     --crawl "CC-MAIN-2020-34"
