@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import argparse
 
 from consts import CC_INDEX_S3_PATH, MY_S3_CRAWL_DATA_PATH, MY_S3_CRAWL_INDEX_PATH

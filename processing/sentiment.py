@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import argparse
 
 from consts import MY_S3_CROSS_JOINED_DATA_PATH, MY_S3_SENTIMENT_DATA_PATH
