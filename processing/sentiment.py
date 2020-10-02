@@ -61,7 +61,7 @@ class CompanySentiment(object):
         df = spark.read.load(data_input_path)
         df.createOrReplaceTempView("data")
 
-        text_records = df.select("company_name", "date", "text").rdd
+        text_records = df.select("company_name", "date", "text").repartition(100).rdd
         
         output = text_records.mapPartitions(self.compute_sentiment)
 
@@ -70,7 +70,7 @@ class CompanySentiment(object):
 
         sqlc = SQLContext(sparkContext=sc)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(10) \
+            .coalesce(100) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
