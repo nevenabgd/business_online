@@ -6,6 +6,7 @@ from consts import MY_S3_CROSS_JOINED_DATA_PATH, MY_S3_SENTIMENT_DATA_PATH
 
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession
+from pyspark.sql.functions import *
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 from textblob import TextBlob
@@ -63,7 +64,7 @@ class CompanySentiment(object):
         df = spark.read.load(data_input_path)
         df.createOrReplaceTempView("data")
 
-        text_records = df.select("company_name", "date", "text").rdd
+        text_records = df.select("company_name", "date", "text").sample(False, 0.005).rdd
         
         output = text_records.mapPartitions(self.compute_sentiment)
 
@@ -72,6 +73,8 @@ class CompanySentiment(object):
 
         sqlc = SQLContext(sparkContext=sc)
         sqlc.createDataFrame(output, schema=self.output_schema) \
+            .groupBy("company_name", "date") \
+            .agg(avg("sentiment").alias("sentiment")) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
