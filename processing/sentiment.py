@@ -50,8 +50,10 @@ class CompanySentiment(object):
             yield company_name, date, sentiment_score
 
     def run(self):
-        args = self.parse_arguments()        
+        args = self.parse_arguments()
         conf = SparkConf()
+        # Set default parallelism to a higher number
+        conf.set("spark.default.parallelism", 100)
         sc = SparkContext(appName=self.name, conf=conf)
         spark = SparkSession.builder.config(conf=sc.getConf()).getOrCreate()
         
@@ -61,7 +63,7 @@ class CompanySentiment(object):
         df = spark.read.load(data_input_path)
         df.createOrReplaceTempView("data")
 
-        text_records = df.select("company_name", "date", "text").repartition(100).rdd
+        text_records = df.select("company_name", "date", "text").rdd
         
         output = text_records.mapPartitions(self.compute_sentiment)
 
@@ -70,7 +72,6 @@ class CompanySentiment(object):
 
         sqlc = SQLContext(sparkContext=sc)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(100) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
