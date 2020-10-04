@@ -72,6 +72,7 @@ class DownloadCCData(object):
         self.args = self.parse_arguments()
 
         conf = SparkConf()
+        conf.set("spark.default.parallelism", 100)
         sc = SparkContext(appName=self.name, conf=conf)
         sqlc = SQLContext(sparkContext=sc)
 
@@ -183,7 +184,7 @@ class DownloadCCData(object):
         sqldf = self.load_dataframe(sc, crawl_partition_spec, bucket_partition_spec)
 
         warc_recs = sqldf.select("url", "warc_filename", "warc_record_offset",
-                                 "warc_record_length").repartition(100).rdd
+                                 "warc_record_length").rdd
 
         print("RDD: number of partitions: {}".format(warc_recs.getNumPartitions()))
 
@@ -191,7 +192,6 @@ class DownloadCCData(object):
 
         output_path = "{}/{}/{}".format(MY_S3_CRAWL_DATA_PATH, crawl_partition_spec, bucket_partition_spec)
         sqlc.createDataFrame(output, schema=self.output_schema) \
-            .coalesce(100) \
             .write \
             .mode("overwrite") \
             .parquet(output_path)
