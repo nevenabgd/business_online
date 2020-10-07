@@ -33,9 +33,6 @@ class DBWriter(object):
     DELETE_CRAWL = ("DELETE FROM company_metrics "
                "WHERE crawl = '{}'")
 
-    # table: top_domains
-    # crawl, company_name, domain, mentions (only for top 3 domains)
-
 
     def parse_arguments(self):
         """ Returns the parsed arguments from the command line """
