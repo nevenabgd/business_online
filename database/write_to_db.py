@@ -30,6 +30,7 @@ class DBWriter(object):
                "(crawl, company_name, date, metric_name, metric_value) "
                "VALUES (%s, %s, %s, %s, %s)")
 
+    # delete current data from database to insert new data for the same crawl
     DELETE_CRAWL = ("DELETE FROM company_metrics "
                "WHERE crawl = '{}'")
 
