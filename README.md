@@ -9,7 +9,7 @@ Solution: An application which provides businesses quick and easy access to thei
 Used the Common Crawl data set which is stored on Amazon S3 ([Common Crawl](https://commoncrawl.org/)). Data is saved in WARC files. It stores information about all URLs it crawled, including dates when they were crawled and html content.
 
 ## Architecture
-![Pipeline](pipeline.png)
+![Pipeline](pipeline1.png)
 
 ## Creating Amazon EMR cluster
 * Create the EMR cluster
