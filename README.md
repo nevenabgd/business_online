@@ -28,7 +28,7 @@ mysql -u user -p password -h hostname
 ## How to manually run different parts of the pipeline
 Note: All jobs are tuned to run optimally on a 10 node spark cluster (node size m5.xlarge)
 * Clone the project git repository
-* Run jobs in next order:
+* Run jobs in the following order:
 1. repartition index job (Note: Replace 'CC-MAIN-2020-34' with crawl snapshot you want to process)
 ```bash
 spark-submit \
@@ -36,7 +36,7 @@ spark-submit \
     ./repartition_cc_index.py \
     --crawl "CC-MAIN-2020-34"
 ```
-2. download cc data (Note: Replace 'CC-MAIN' with crawl snapshot you want to process, and bucket can be between 0-9)
+2. download cc data (Note: Replace 'CC-MAIN-2020-34' with crawl snapshot you want to process, and bucket can be between 0-9)
 ```bash
 spark-submit \
     --executor-memory 2G \
@@ -65,7 +65,7 @@ spark-submit \
     ./mentions.py \
     --crawl "CC-MAIN-2020-34"
 ```
-5. calulate sentiment job
+5. calculate sentiment job
 ```bash
 spark-submit \
     --executor-memory 5G \
