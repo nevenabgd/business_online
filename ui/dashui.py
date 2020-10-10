@@ -122,4 +122,4 @@ if __name__ == '__main__':
         ])
     ], style={'width': '10'})
 
-    app.run_server()
+    app.run_server(host= '0.0.0.0')

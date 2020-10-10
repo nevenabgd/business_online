@@ -15,3 +15,14 @@ sudo python3 -c "import nltk; nltk.download('averaged_perceptron_tagger',downloa
 
 # All nltk
 # sudo python3 -c "import nltk; nltk.download('all-nltk',download_dir='/usr/share/nltk_data');"
+
+
+# install for dash ec2 instance
+# sudo python3 get-pip.py
+# sudo pip3 install mysql-connector-python
+# sudo pip3 install pandas
+# sudo pip3 install dash==1.16.2
+
+
+# redirect port 80 to port 8050 to make port 80 work (see commoncrawl.org/the-data/get-started/)
+# sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
