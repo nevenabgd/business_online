@@ -1,5 +1,6 @@
 import sys
 sys.path.append('../')
+sys.path.append('/home/hadoop/business_online')
 import argparse
 
 from consts import MY_S3_CRAWL_DATA_PATH, MY_S3_COMPANY_DATA_PATH, MY_S3_CROSS_JOINED_DATA_PATH
