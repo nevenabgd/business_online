@@ -50,7 +50,7 @@ dag = DAG(
 
 repartition_task = BashOperator(
     task_id='repartition_cc_index',
-    bash_command='spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 ../ingestion/repartition_cc_index.py --crawl {}'.format(CRAWL),
+    bash_command='spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/ingestion/repartition_cc_index.py --crawl {}'.format(CRAWL),
     dag=dag,
 )
 
@@ -60,7 +60,7 @@ for i in range(0, 10):
     download_tasks.append(BashOperator(
         task_id='download_cc_{}'.format(i),
         bash_command=('spark-submit --executor-memory 2G --num-executors 40 --packages '
-            'org.apache.hadoop:hadoop-aws:3.2.0 ../ingestion/download_cc_data.py --crawl {} --bucket {}'
+            'org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/ingestion/download_cc_data.py --crawl {} --bucket {}'
             .format(CRAWL, i)),
         dag=dag,
     ))
@@ -69,7 +69,7 @@ for i in range(0, 10):
     crossjoin_tasks.append(BashOperator(
         task_id='cross_join_{}'.format(i),
         bash_command=('spark-submit --executor-memory 5G --num-executors 14 --packages '
-            'org.apache.hadoop:hadoop-aws:3.2.0 ../processing/cross_join.py --crawl {} --bucket {}'
+            'org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/processing/cross_join.py --crawl {} --bucket {}'
             .format(CRAWL, i)),
         dag=dag,
     ))
@@ -78,7 +78,7 @@ for i in range(0, 10):
 mentions_task = BashOperator(
     task_id='mentions',
     bash_command=('spark-submit --executor-memory 5G --num-executors 14 --packages '
-        'org.apache.hadoop:hadoop-aws:3.2.0 ../processing/mentions.py --crawl {}'
+        'org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/processing/mentions.py --crawl {}'
         .format(CRAWL)),
     dag=dag,
 )
@@ -87,7 +87,7 @@ mentions_task.set_upstream(crossjoin_tasks)
 sentiment_task = BashOperator(
     task_id='sentiment',
     bash_command=('spark-submit --executor-memory 5G --num-executors 10 --packages '
-        'org.apache.hadoop:hadoop-aws:3.2.0 ../processing/sentiment.py --crawl {}'
+        'org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/processing/sentiment.py --crawl {}'
         .format(CRAWL)),
     dag=dag,
 )
@@ -96,7 +96,7 @@ sentiment_task.set_upstream(crossjoin_tasks)
 write_to_db_task = BashOperator(
     task_id='write_to_db',
     bash_command=('spark-submit --executor-memory 1G --num-executors 1 --packages '
-        'org.apache.hadoop:hadoop-aws:3.2.0 ../database/write_to_db.py --crawl {} '
+        'org.apache.hadoop:hadoop-aws:3.2.0 /home/hadoop/business_online/database/write_to_db.py --crawl {} '
         '--endpoint {} --db {} --user {} --password {}'
         .format(CRAWL, ENDPOINT, DB, DBUSER, DBPASS)),
     dag=dag,
