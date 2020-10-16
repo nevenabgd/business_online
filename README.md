@@ -87,9 +87,9 @@ spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 * After you created EMR cluster, SSH to master node an run below commands
 ```bash
 export AIRFLOW_HOME=~/airflow
-   sudo yum install python3-devel
-   sudo /usr/bin/pip3 install apache-airflow
-   airflow initdb
+sudo yum install python3-devel
+sudo /usr/bin/pip3 install apache-airflow
+airflow initdb
 ```
 * Copy pipeline.py file to ~/airflow/dags
 * Start the web server on port 8081
