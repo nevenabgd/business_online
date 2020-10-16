@@ -85,22 +85,26 @@ spark-submit --packages org.apache.hadoop:hadoop-aws:3.2.0 \
 ```
 ## How to install Airflow on EMR
 * After you created EMR cluster, SSH to master node an run below commands
-```export AIRFLOW_HOME=~/airflow
+```bash
+export AIRFLOW_HOME=~/airflow
    sudo yum install python3-devel
    sudo /usr/bin/pip3 install apache-airflow
    airflow initdb
 ```
 * Copy pipeline.py file to ~/airflow/dags
 * Start the web server on port 8081
-```airflow webserver -p 8081
+```bash
+airflow webserver -p 8081
 ```
 * Start the scheduler
-```airflow scheduler
+```bash
+airflow scheduler
 ```
 ## How to kick off the pipeline using Airflow
 Run the following command
 NOTE: Replcae 'CC-MAIN-2020-29' with the crawl snapshot you want to process, and for the start and end date, put the first day of the month of that snapshot.
-```airflow backfill --conf '{"crawl":"CC-MAIN-2020-29" }' -s 2020-10-01 -e 2020-10-01 pipeline 
+```
+airflow backfill --conf '{"crawl":"CC-MAIN-2020-29" }' -s 2020-10-01 -e 2020-10-01 pipeline 
 ```
 
 
