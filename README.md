@@ -2,7 +2,7 @@
 Revealing online presence metrics for businesses
 
 ## Introduction
-Business online presence is key for the success. If you are a business owner, wouldn’t it be nice if you could have a place to see how is your business doing online, who is talking about your business, and what is the overall sentiment across news or social media.
+Business online presence is key for success. If you are a business owner, wouldn’t it be nice if you could have a place to see how is your business doing online, who is talking about your business, and what is the overall sentiment across news or social media.
 Solution: Web application which provides businesses quick and easy access to their online presence metrics. Specifically, businesses can see how often are they mentioned online over time, what is the overall sentiment, and also they can compare how are they doing against some of other competing businesses.
 
 ## Dataset
