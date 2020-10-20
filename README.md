@@ -1,5 +1,6 @@
 # Business Online
 Revealing online presence metrics for businesses
+
 by Nevena Mitic
 
 ## Introduction
