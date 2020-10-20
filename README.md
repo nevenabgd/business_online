@@ -1,5 +1,6 @@
 # Business Online
 Revealing online presence metrics for businesses
+by Nevena Mitic
 
 ## Introduction
 Business online presence is key for success. If you are a business owner, wouldn’t it be nice if you could have a place to see how is your business doing online, who is talking about your business, and what is the overall sentiment across news or social media.
